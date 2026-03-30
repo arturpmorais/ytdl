@@ -20,7 +20,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyinstaller yt-dlp imageio-ffmpeg
     - name: build app
-      run: pyinstaller --onefile --windowed --icon=assets/janinhx.icns ytdl.py
+      run: pyinstaller --onefile --windowed --icon=assets/janinhx.icns --add-data 'assets:assets' ytdl.py
     - name: upload artifact
       uses: actions/upload-artifact@v4
       with:
