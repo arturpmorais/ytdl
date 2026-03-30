@@ -1,9 +1,19 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
+import tkinter.ttk as ttk
 import threading
 import os
 import sys
 import subprocess
+
+
+def resource_path(relative_path):
+    """get absolute path to resource, works for dev and PyInstaller."""
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
 
 try:
     import yt_dlp
@@ -53,8 +63,8 @@ class YTDownloader(tk.Tk):
         self.resizable(False, False)
         self.configure(bg=BG)
 
-        icon_png = os.path.join(os.path.dirname(__file__), "assets", "janinhx.png")
-        icon_ico = os.path.join(os.path.dirname(__file__), "assets", "janinhx.ico")
+        icon_png = resource_path(os.path.join("assets", "janinhx.png"))
+        icon_ico = resource_path(os.path.join("assets", "janinhx.ico"))
         self.logo_image = None
 
         if os.path.exists(icon_png):
@@ -78,6 +88,20 @@ class YTDownloader(tk.Tk):
                 self.iconphoto(True, self.logo_image)
             except Exception:
                 pass
+
+        self._button_style = ttk.Style(self)
+        try:
+            self._button_style.theme_use('clam')
+        except Exception:
+            pass
+        self._button_style.configure('Accent.TButton',
+                                     background=ACCENT,
+                                     foreground='white',
+                                     borderwidth=0,
+                                     focusthickness=0,
+                                     padding=6)
+        self._button_style.map('Accent.TButton',
+                               background=[('active', ACCENT2), ('disabled', BORDER)])
 
         self.url_var      = tk.StringVar()
         self.format_var   = tk.StringVar(value="MP4")
@@ -115,17 +139,11 @@ class YTDownloader(tk.Tk):
                                    insertbackground=ACCENT, relief="flat", bd=0)
         self._url_entry.pack(side="left", fill="x", expand=True, padx=12, pady=10)
 
-        tk.Button(url_frame, text="Colar", command=self._paste,
-                  font=("Helvetica", 9), bg=SURFACE, fg=TEXT,
-                  relief="flat", padx=10, cursor="hand2",
-                  activebackground=BORDER, activeforeground=TEXT
-                  ).pack(side="right", padx=6, pady=6)
+        ttk.Button(url_frame, text="colar", command=self._paste,
+                   style='Accent.TButton').pack(side="right", padx=6, pady=6)
 
-        tk.Button(url_frame, text="✕", command=self._clear_url,
-                  font=("Helvetica", 9), bg=SURFACE, fg=SUBTEXT,
-                  relief="flat", padx=8, cursor="hand2",
-                  activebackground=BORDER, activeforeground=TEXT
-                  ).pack(side="right", pady=6)
+        ttk.Button(url_frame, text="✕", command=self._clear_url,
+                   style='Accent.TButton').pack(side="right", pady=6)
 
         self._section_label("Formato", top=16)
         self._fmt_frame = tk.Frame(self, bg=BG)
@@ -160,11 +178,8 @@ class YTDownloader(tk.Tk):
                  font=("Consolas", 10), bg=CARD, fg=SUBTEXT,
                  anchor="w").pack(side="left", fill="x", expand=True, padx=12, pady=9)
 
-        tk.Button(folder_frame, text="Escolher…", command=self._choose_folder,
-                  font=("Helvetica", 9), bg=SURFACE, fg=TEXT,
-                  relief="flat", padx=10, cursor="hand2",
-                  activebackground=BORDER, activeforeground=TEXT
-                  ).pack(side="right", padx=6, pady=6)
+        ttk.Button(folder_frame, text="escolher…", command=self._choose_folder,
+                   style='Accent.TButton').pack(side="right", padx=6, pady=6)
 
         prog_bg = tk.Frame(self, bg=BORDER, height=5)
         prog_bg.pack(fill="x", padx=24, pady=(20, 0))
@@ -192,12 +207,9 @@ class YTDownloader(tk.Tk):
         scrollbar.pack(side="right", fill="y")
         self._log.pack(fill="both", expand=True, padx=8, pady=6)
 
-        self._btn_dl = tk.Button(self, text="⬇  baixar",
-                                 command=self._start_download,
-                                 font=("Helvetica", 12, "bold"),
-                                 bg=ACCENT, fg="white", relief="flat",
-                                 padx=0, pady=14, cursor="hand2",
-                                 activebackground=ACCENT2, activeforeground="white")
+        self._btn_dl = ttk.Button(self, text="⬇  baixar",
+                                   command=self._start_download,
+                                   style='Accent.TButton')
         self._btn_dl.pack(fill="x", padx=24, pady=16)
 
     def _section_label(self, text, top=0):
@@ -275,7 +287,7 @@ class YTDownloader(tk.Tk):
         qual = self.quality_var.get()
 
         self._downloading = True
-        self._btn_dl.configure(state="disabled", text="baixando…", bg=BORDER)
+        self._btn_dl.configure(state="disabled", text="baixando…")
         self._set_progress(0)
 
         self._log_write(f"{'─' * 58}", BORDER)
@@ -341,14 +353,14 @@ class YTDownloader(tk.Tk):
                 self.after(0, self._log_write, f"📄 {title}", TEXT)
                 ydl.download([url])
             self.after(0, self._set_status, "✿ download finalizado com sucesso!")
-            self.after(0, self._log_write, f"📁 Salvo em: {folder}", SUCCESS)
+            self.after(0, self._log_write, f"📁 salvo em: {folder}", SUCCESS)
         except Exception as e:
             self.after(0, self._log_write, f"✖ erro: {e}", ERROR)
             self.after(0, self._set_status, "✖ erro durante o download.")
         finally:
             self._downloading = False
             self.after(0, self._btn_dl.configure,
-                       {"state": "normal", "text": "⬇  baixar", "bg": ACCENT})
+                       {"state": "normal", "text": "⬇  baixar"})
 
 if __name__ == "__main__":
     app = YTDownloader()
