@@ -80,7 +80,7 @@ class YTDownloader(tk.Tk):
                 pass
 
         self.url_var      = tk.StringVar()
-        self.format_var   = tk.StringVar(value="mp4")
+        self.format_var   = tk.StringVar(value="MP4")
         self.quality_var  = tk.StringVar(value="melhor disponível")
         self.folder_var   = tk.StringVar(value=os.path.expanduser("~/Downloads"))
         self._downloading = False
@@ -131,7 +131,7 @@ class YTDownloader(tk.Tk):
         self._fmt_frame = tk.Frame(self, bg=BG)
         self._fmt_frame.pack(fill="x", **pad, pady=(4, 0))
 
-        for fmt in ("mp4", "mp3"):
+        for fmt in ("MP4", "MP3"):
             rb = tk.Radiobutton(self._fmt_frame, text=fmt,
                                 variable=self.format_var, value=fmt,
                                 command=self._on_format_change,
@@ -222,7 +222,7 @@ class YTDownloader(tk.Tk):
         for w in self._quality_frame.winfo_children():
             w.destroy()
 
-        fmt = self.format_var.get()
+        fmt = self.format_var.get().upper()
         options = list(QUALITY_MP4 if fmt == "MP4" else QUALITY_MP3)
         self.quality_var.set(options[0])
 
@@ -266,7 +266,7 @@ class YTDownloader(tk.Tk):
     def _start_download(self):
         url = self.url_var.get().strip()
         if not url:
-            messagebox.showwarning("URL vazia", "Cole a URL do vídeo antes de baixar.")
+            messagebox.showwarning("URL vazia", "cole a URL do vídeo antes de baixar.")
             return
         if self._downloading:
             return
@@ -275,7 +275,7 @@ class YTDownloader(tk.Tk):
         qual = self.quality_var.get()
 
         self._downloading = True
-        self._btn_dl.configure(state="disabled", text="Baixando…", bg=BORDER)
+        self._btn_dl.configure(state="disabled", text="baixando…", bg=BORDER)
         self._set_progress(0)
 
         self._log_write(f"{'─' * 58}", BORDER)
@@ -340,15 +340,15 @@ class YTDownloader(tk.Tk):
                 title = info.get("title", url)
                 self.after(0, self._log_write, f"📄 {title}", TEXT)
                 ydl.download([url])
-            self.after(0, self._set_status, "✿ Download finalizado com sucesso!")
+            self.after(0, self._set_status, "✿ download finalizado com sucesso!")
             self.after(0, self._log_write, f"📁 Salvo em: {folder}", SUCCESS)
         except Exception as e:
-            self.after(0, self._log_write, f"✖ Erro: {e}", ERROR)
-            self.after(0, self._set_status, "Erro durante o download.")
+            self.after(0, self._log_write, f"✖ erro: {e}", ERROR)
+            self.after(0, self._set_status, "✖ erro durante o download.")
         finally:
             self._downloading = False
             self.after(0, self._btn_dl.configure,
-                       {"state": "normal", "text": "⬇  BAIXAR", "bg": ACCENT})
+                       {"state": "normal", "text": "⬇  baixar", "bg": ACCENT})
 
 if __name__ == "__main__":
     app = YTDownloader()
